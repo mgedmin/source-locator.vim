@@ -63,14 +63,14 @@ def get_file_prefixes():
     #   prefix1/filename
     #   prefix2/filename
     # for this reason the first prefix should really be ''.
-    prefixes = vim.eval('g:py_test_locator_prefixes')
+    prefixes = vim.eval('g:source_locator_prefixes')
     if not isinstance(prefixes, list):
         prefixes = prefixes.split(',')
     return [''] + prefixes
 
 
 def get_file_suffixes():
-    suffixes = vim.eval('g:py_test_locator_suffixes')
+    suffixes = vim.eval('g:source_locator_suffixes')
     if not isinstance(suffixes, list):
         suffixes = suffixes.split(',')
     return [''] + suffixes
