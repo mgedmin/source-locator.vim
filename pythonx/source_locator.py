@@ -134,19 +134,19 @@ def locate_command(line, verbose=False):
             print('MATCH: {}'.format(
                 ' '.join('{}={}'.format(k, v) for k, v in sorted(match.items()))))
         if tag and module_class:
-            # Integration with smart-tag.vim
+            # Optional integration with https://github.com/mgedmin/pytag.vim
             try:
-                import __main__
-                finder = __main__.SmartTagFinder()
+                import smart_tag
+            except ImportError:
+                pass
+            else:
+                finder = smart_tag.SmartTagFinder()
                 full_tag = '%s.%s' % (module_class, tag)
                 if verbose:
                     print('looking for tag %s' % full_tag)
                 t, n, i = finder.find_best_tag(full_tag)
                 if t:
                     return 'Tag %s' % full_tag
-            except NameError:
-                # smart-tag.vim not found
-                pass
         if filename:
             filename = locate_file(filename, verbose=verbose)
         if not filename:
