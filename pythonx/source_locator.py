@@ -85,6 +85,8 @@ def locate_file(filename, verbose=False):
         for prefix in file_prefixes:
             for suffix in file_suffixes:
                 new_filename = os.path.join(prefix, filename + suffix)
+                if verbose > 2:
+                    print('  checking %s' % new_filename)
                 if os.path.exists(new_filename):
                     return new_filename
         if '/' not in filename:
