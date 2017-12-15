@@ -41,7 +41,9 @@ The following commands are defines:
     jump to the location in the ``"*`` register
 
 :LocateTest <filename>
+
 :LocateTest <filename>:<lineno>
+
 :LocateTest <tag>
     jump to the desired location
 
