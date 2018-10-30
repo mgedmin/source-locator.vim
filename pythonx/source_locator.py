@@ -27,9 +27,9 @@ patterns = [
     re.compile(r'(?P<filename>[^: ]+):(?P<lineno>\d+)'),
     # grep output
     re.compile(r'(?P<filename>[^: ]+):'),
-    # tracebacks
-    re.compile(r'"(?P<filename>[^: ]+)", line (?P<lineno>\d+)'),
-    re.compile(r'File (?P<filename>[^: ]+), line (?P<lineno>\d+)'),
+    # tracebacks (the variant with 'lineno N' comes from tracemalloc)
+    re.compile(r'"(?P<filename>[^: ]+)", line(?:no)? (?P<lineno>\d+)'),
+    re.compile(r'File (?P<filename>[^: ]+), line(?:no)? (?P<lineno>\d+)'),
     # filename (lines 123-456)
     re.compile(r'(?P<filename>[^ ]+) [(]lines (?P<lineno>\d+)-\d+[)]'),
     # anything that looks like a unit test name (unittest style)
