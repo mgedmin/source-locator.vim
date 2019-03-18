@@ -126,7 +126,7 @@ def quote(s):
     return s.replace('\\', '\\\\').replace(' ', '\\ ')
 
 
-def locate_command(line, verbose=False):
+def locate_command(line, verbose=False, e_command='e', tag_command='Tag', tjump_command='tjump'):
     for match in iter_matches(line):
         filename = match.get('filename')
         lineno = match.get('lineno')
@@ -148,7 +148,7 @@ def locate_command(line, verbose=False):
                     print('looking for tag %s' % full_tag)
                 t, n, i = finder.find_best_tag(full_tag)
                 if t:
-                    return 'Tag %s' % full_tag
+                    return '%s %s' % (tag_command, full_tag)
         if filename:
             filename = locate_file(filename, verbose=verbose)
         if not filename:
@@ -156,23 +156,30 @@ def locate_command(line, verbose=False):
             if module:
                 filename = locate_module(module, verbose=verbose)
         if filename and lineno:
-            return 'e +%s %s' % (lineno, quote(filename))
+            if os.path.abspath(filename) == os.path.abspath(vim.current.buffer.name):
+                # same file optimizatin: avoid re-reading, just jump to the right line
+                return ':%d' % int(lineno)
+            else:
+                return '%s +%s %s' % (e_command, lineno, quote(filename))
         if tag:
             found = tag_exists(tag, verbose=verbose, filename=filename)
             if not found and '.' in tag:
                 tag = tag.rsplit('.', 1)[-1]
                 found = tag_exists(tag, verbose=verbose, filename=filename)
             if found:
-                return 'tjump %s' % quote(tag)
+                return '%s %s' % (tjump_command, quote(tag))
         if filename:
-            return 'e %s' % quote(filename)
+            return '%s %s' % (e_command, quote(filename))
     return None
 
 
-def locate(line, verbose=False):
+def locate(line, verbose=False, e_command='e', tag_command='Tag', tjump_command='tjump', command_prefix=''):
     line = line.strip().replace('\\', '/')
     try:
-        cmd = locate_command(line, verbose=verbose)
+        cmd = locate_command(line, verbose=verbose,
+                             e_command=command_prefix + e_command,
+                             tag_command=command_prefix + tag_command,
+                             tjump_command=command_prefix + tjump_command)
         if cmd:
             print(cmd)
             try:
