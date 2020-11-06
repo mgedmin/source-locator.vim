@@ -76,6 +76,26 @@ def get_file_suffixes():
     return [''] + suffixes
 
 
+def detoxify(filename, verbose=False):
+    parts = filename.split('/')
+    if '.tox' in parts:
+        idx = parts.index('.tox')
+        if parts[idx + 4:idx + 5] == ['site-packages']:
+            candidate = '/'.join(parts[idx + 5:])
+            if verbose:
+                print('.tox detected, trying %s', candidate)
+            yield candidate
+    yield filename
+
+
+def locate_file_detoxified(filename, verbose=False):
+    for candidate in detoxify(filename, verbose=verbose):
+        candidate = locate_file(candidate, verbose=verbose)
+        if candidate:
+            return candidate
+    return None
+
+
 def locate_file(filename, verbose=False):
     if verbose:
         print('looking for file %s' % filename)
@@ -150,7 +170,7 @@ def locate_command(line, verbose=False, e_command='e', tag_command='Tag', tjump_
                 if t:
                     return '%s %s' % (tag_command, full_tag)
         if filename:
-            filename = locate_file(filename, verbose=verbose)
+            filename = locate_file_detoxified(filename, verbose=verbose)
         if not filename:
             module = match.get('module')
             if module:
