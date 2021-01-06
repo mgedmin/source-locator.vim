@@ -80,8 +80,15 @@ def detoxify(filename, verbose=False):
     parts = filename.split('/')
     if '.tox' in parts:
         idx = parts.index('.tox')
+        # .tox/pyXY/lib/pythonX.Y/site-packages/
         if parts[idx + 4:idx + 5] == ['site-packages']:
             candidate = '/'.join(parts[idx + 5:])
+            if verbose:
+                print('.tox detected, trying %s', candidate)
+            yield candidate
+        # .tox/pypyX/site-packages/
+        if parts[idx + 2:idx + 3] == ['site-packages']:
+            candidate = '/'.join(parts[idx + 3:])
             if verbose:
                 print('.tox detected, trying %s', candidate)
             yield candidate
