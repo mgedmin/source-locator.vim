@@ -34,6 +34,8 @@ patterns = [
     re.compile(r'(?P<filename>[^ ]+) [(]lines (?P<lineno>\d+)-\d+[)]'),
     # anything that looks like a unit test name (unittest style)
     re.compile(r'(?P<tag>(?:doc)?test[a-zA-Z0-9_]*) [(](?P<module_class>[a-zA-Z0-9_.]*[.][a-zA-Z_0-9]+)[)]'),
+    # json record with {..."path": "filename", "line": NNN...}
+    re.compile(r'"(?P<filename>[^ "]+)", "line": (?P<lineno>\d+)'),
     # anything that looks like a filename
     re.compile(r'(?P<filename>[-_a-zA-Z0-9/.]{3,})'),
     # anything that looks like a package/module
