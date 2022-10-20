@@ -48,8 +48,10 @@ patterns = [
 ]
 
 
-def iter_matches(line):
+def iter_matches(line, verbose=False):
     for pattern in patterns:
+        if verbose > 3:
+            print("TRYING %s" % pattern)
         for match in pattern.finditer(line):
             yield match.groupdict()
 
@@ -154,7 +156,7 @@ def quote(s):
 
 
 def locate_command(line, verbose=False, e_command='e', tag_command='Tag', tjump_command='tjump'):
-    for match in iter_matches(line):
+    for match in iter_matches(line, verbose=verbose):
         filename = match.get('filename')
         lineno = match.get('lineno')
         tag = match.get('tag')
