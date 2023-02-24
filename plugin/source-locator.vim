@@ -1,7 +1,7 @@
 " File: source-locator.vim
 " Author: Marius Gedminas <marius@gedmin.as>
-" Version: 1.2
-" Last Modified: 2021-01-05
+" Version: 2.0
+" Last Modified: 2023-02-24
 
 if !exists('g:source_locator_prefixes')
     let g:source_locator_prefixes = ['src']

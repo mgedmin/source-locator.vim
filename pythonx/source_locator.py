@@ -141,12 +141,16 @@ def tag_exists(tag_name, verbose=False, filename=None):
     if verbose:
         print('looking for tag %s' % tag_name)
     try:
-        tags = vim.eval("taglist('^%s$')" % tag_name)
+        assert "'" not in tag_name
+        tags = vim.eval("taglist('^%s$', expand('%%'))" % tag_name)
         if tags and filename:
-            found_in = tags[0]['filename']
-            if not os.path.samefile(found_in, filename):
-                if verbose:
+            for idx, tag in enumerate(tags, 1):
+                found_in = tag['filename']
+                if os.path.samefile(found_in, filename):
+                    return idx
+                elif verbose:
                     print('found tag in %s but wanted %s, ignoring' % (found_in, filename))
+            else:
                 return False
         return bool(tags)
     except vim.error:
@@ -157,7 +161,11 @@ def quote(s):
     return s.replace('\\', '\\\\').replace(' ', '\\ ')
 
 
-def locate_command(line, verbose=False, e_command='e', tag_command='Tag', tjump_command='tjump'):
+def locate_command(line, verbose=False):
+    e_command = 'e'
+    tag_command = 'tag'
+    smart_tag_command = 'Tag'
+    tjump_command = 'tjump'
     for match in iter_matches(line, verbose=verbose):
         filename = match.get('filename')
         lineno = match.get('lineno')
@@ -179,7 +187,7 @@ def locate_command(line, verbose=False, e_command='e', tag_command='Tag', tjump_
                     print('looking for tag %s' % full_tag)
                 t, n, i = finder.find_best_tag(full_tag)
                 if t:
-                    return '%s %s' % (tag_command, full_tag)
+                    return '%s %s' % (smart_tag_command, full_tag)
         if filename:
             filename = locate_file_detoxified(filename, verbose=verbose)
         if not filename:
@@ -198,19 +206,19 @@ def locate_command(line, verbose=False, e_command='e', tag_command='Tag', tjump_
                 tag = tag.rsplit('.', 1)[-1]
                 found = tag_exists(tag, verbose=verbose, filename=filename)
             if found:
-                return '%s %s' % (tjump_command, quote(tag))
+                if not isinstance(found, bool):
+                    return '%d%s %s' % (found, tag_command, quote(tag))
+                else:
+                    return '%s %s' % (tjump_command, quote(tag))
         if filename:
             return '%s %s' % (e_command, quote(filename))
     return None
 
 
-def locate(line, verbose=False, e_command='e', tag_command='Tag', tjump_command='tjump', command_prefix=''):
+def locate(line, verbose=False):
     line = line.strip().replace('\\', '/')
     try:
-        cmd = locate_command(line, verbose=verbose,
-                             e_command=command_prefix + e_command,
-                             tag_command=command_prefix + tag_command,
-                             tjump_command=command_prefix + tjump_command)
+        cmd = locate_command(line, verbose=verbose)
         if cmd:
             print(cmd)
             try:
