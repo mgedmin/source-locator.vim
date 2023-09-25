@@ -195,7 +195,8 @@ def locate_command(line, verbose=False):
             if module:
                 filename = locate_module(module, verbose=verbose)
         if filename and lineno:
-            if os.path.samefile(filename, vim.current.buffer.name):
+            # os.path.samefile(filename, '') raises a FileNotFoundError
+            if vim.current.buffer.name and os.path.samefile(filename, vim.current.buffer.name):
                 # same file optimizatin: avoid re-reading, just jump to the right line
                 return ':%d' % int(lineno)
             else:
