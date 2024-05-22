@@ -1,8 +1,3 @@
-"""
-" HACK to make this file source'able by vim as well as importable by Python:
-exe has('python3') ? 'py3' : 'py' 'import sys; sys.modules.pop("source_locator"); import source_locator'
-finish
-"""
 # the second half of source-locator.vim
 import vim
 import os
@@ -11,7 +6,10 @@ import re
 
 patterns = [
     # unittest error format
-    re.compile(r'^(?:ERROR|FAIL): (?P<tag>[a-zA-Z_0-9]+) [(](?P<module_class>[a-zA-Z0-9_.]*[.][a-zA-Z_0-9]+)[)]'),
+    re.compile(
+        r'^(?:ERROR|FAIL): (?P<tag>[a-zA-Z_0-9]+)'
+        r' [(](?P<module_class>[a-zA-Z0-9_.]*[.][a-zA-Z_0-9]+)[)]'
+    ),
     # svn status output
     re.compile(r'^[A-Z?]      (?P<filename>[^ ]+)$'),
     # py.test encloses the filename in square brackets sometimes,
@@ -33,7 +31,10 @@ patterns = [
     # filename (lines 123-456)
     re.compile(r'(?P<filename>[^ ]+) [(]lines (?P<lineno>\d+)-\d+[)]'),
     # anything that looks like a unit test name (unittest style)
-    re.compile(r'(?P<tag>(?:doc)?test[a-zA-Z0-9_]*) [(](?P<module_class>[a-zA-Z0-9_.]*[.][a-zA-Z_0-9]+)[)]'),
+    re.compile(
+        r'(?P<tag>(?:doc)?test[a-zA-Z0-9_]*)'
+        r' [(](?P<module_class>[a-zA-Z0-9_.]*[.][a-zA-Z_0-9]+)[)]'
+    ),
     # json record with {..."path": "filename", "line": NNN...}
     re.compile(r'"(?P<filename>[^ "]+)", "line": (?P<lineno>\d+)'),
     # anything that looks like a filename
@@ -112,6 +113,7 @@ def locate_file(filename, verbose=False):
         print('looking for file %s' % filename)
     file_prefixes = get_file_prefixes()
     file_suffixes = get_file_suffixes()
+    safety_check = 100
     while filename:
         for prefix in file_prefixes:
             for suffix in file_suffixes:
@@ -120,11 +122,22 @@ def locate_file(filename, verbose=False):
                     print('  checking %s' % new_filename)
                 if os.path.exists(new_filename):
                     return new_filename
-        if '/' not in filename:
+        if '/' in filename:
+            filename = filename.partition('/')[-1]
+        elif '.' in filename:
+            # RobotTest runner constructs test names by joining directory
+            # and file names with dots, and also capitalizes them.
+            # Try replacing the first . with a /
+            filename = '/'.join(filename.split('.'))
+            # and do the lowercasing hack to make it work for Robot tests, I'm crying
+            filename = filename.rpartition('/')[0].lower() + '/' + filename.rpartition('/')[-1]
+        else:
             break
-        filename = filename.split('/', 1)[1]
         if verbose:
             print('  trying %s' % filename)
+        safety_check -= 1
+        if safety_check <= 0:
+            raise RuntimeError('LOOP DETECTED, ABORTING')
     return None
 
 
