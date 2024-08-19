@@ -174,6 +174,17 @@ def quote(s):
     return s.replace('\\', '\\\\').replace(' ', '\\ ')
 
 
+def same_file(a, b):
+    try:
+        return a and b and os.path.samefile(a, b)
+    except OSError:
+        # one of the files -- which is vim.current.buffer.name -- might not
+        # exist for various reasons (e.g. it's not a real file, because the
+        # current buffer is a NERDTree buffer or something like that), and
+        # that causes os.path.samefile() to raise FileNotFoundError.
+        return False
+
+
 def locate_command(line, verbose=False):
     e_command = 'e'
     tag_command = 'tag'
@@ -209,7 +220,7 @@ def locate_command(line, verbose=False):
                 filename = locate_module(module, verbose=verbose)
         if filename and lineno:
             # os.path.samefile(filename, '') raises a FileNotFoundError
-            if vim.current.buffer.name and os.path.samefile(filename, vim.current.buffer.name):
+            if same_file(filename, vim.current.buffer.name):
                 # same file optimizatin: avoid re-reading, just jump to the right line
                 return ':%d' % int(lineno)
             else:
