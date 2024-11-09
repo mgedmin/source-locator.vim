@@ -240,11 +240,15 @@ def locate_command(line, verbose=False):
     return None
 
 
-def locate(line, verbose=False):
+def locate(line, verbose=False, command_prefix=''):
     line = line.strip().replace('\\', '/')
     try:
         cmd = locate_command(line, verbose=verbose)
         if cmd:
+            # command_prefix is used in my ~/.vim/ftplugin/qf.vim for
+            # map <buffer> gF :pyx source_locator.locate(vim.current.line,
+            #   \ command_prefix='wincmd p<bar>')<cr>
+            cmd = command_prefix + cmd
             print(cmd)
             try:
                 vim.command(cmd)
