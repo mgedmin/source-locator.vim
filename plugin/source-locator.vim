@@ -1,7 +1,7 @@
 " File: source-locator.vim
 " Author: Marius Gedminas <marius@gedmin.as>
-" Version: 2.2
-" Last Modified: 2024-11-09
+" Version: 2.3
+" Last Modified: 2026-03-31
 
 if !exists('g:source_locator_prefixes')
     let g:source_locator_prefixes = ['src']
@@ -93,7 +93,8 @@ endfunction
 endif
 
 function! LocateTestFromClipboard()
-    call LocateTest(substitute(@*, '\f\zs\n\ze\f', '', 'g'))
+    let clipboard_text = @* ?? @+
+    call LocateTest(substitute(clipboard_text, '\f\zs\n\ze\f', '', 'g'))
 endfunction
 
 command! -bar -nargs=? LocateTest	call LocateTest(<q-args>)
