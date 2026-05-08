@@ -1,7 +1,7 @@
 " File: source-locator.vim
 " Author: Marius Gedminas <marius@gedmin.as>
-" Version: 2.3
-" Last Modified: 2026-03-31
+" Version: 2.4
+" Last Modified: 2026-05-07
 
 if !exists('g:source_locator_prefixes')
     let g:source_locator_prefixes = ['src']
@@ -9,6 +9,14 @@ endif
 
 if !exists('g:source_locator_suffixes')
     let g:source_locator_suffixes = ['.py']
+endif
+
+if !exists('g:source_locator_prefer_clipboard')
+    if &clipboard =~ 'unnamedplus'
+        let g:source_locator_prefer_clipboard = 1
+    else
+        let g:source_locator_prefer_clipboard = 0
+    endif
 endif
 
 if has('python') || has('python3')
@@ -93,7 +101,14 @@ endfunction
 endif
 
 function! LocateTestFromClipboard()
-    let clipboard_text = @* ?? @+
+    " Since I can never remember which is which:
+    "   * is the primary selection register
+    "   + is the clipboard register
+    if g:source_locator_prefer_clipboard
+        let clipboard_text = @+ ?? @*
+    else
+        let clipboard_text = @* ?? @+
+    endif
     call LocateTest(substitute(clipboard_text, '\f\zs\n\ze\f', '', 'g'))
 endfunction
 

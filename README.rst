@@ -78,6 +78,19 @@ g:source_locator_suffixes
 
     Filename suffixes to try when the file is otherwise not found.
 
+g: source_locator_prefer_clipboard
+    Default: automatic, based on your &clipboard setting.
+
+    If 1, uses the clipboard register ("+) when it's non-empty, falling back to
+    the primary selection ("\*).
+
+    If 0, uses the primary selection register ("\*) when it's non-empty,
+    falling back to the clipboard ("\+).
+
+    If unset, tries to autodetect your preference by looking at the value
+    of the 'clipboard' option: if it contains ``unnamedplus``, prefers the
+    clipboard; otherwise prefers the primary selection.
+
 
 Bugs
 ----
