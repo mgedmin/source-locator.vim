@@ -35,10 +35,11 @@ Python support).
 Usage
 -----
 
-The following commands are defines:
+The following commands are defined:
 
 :ClipboardTest
     jump to the location in the ``"*`` register
+    (set g:source_locator_prefer_clipboard = 1 to make it use ``"+``)
 
 :LocateTest <filename>
 
@@ -62,7 +63,13 @@ By default there are no key bindings.
 
 You may want to add a mapping in your ``~/.vimrc``.  I like ::
 
-    map <F7> :ClipboardTest<CR>
+    map <F7> <Cmd>ClipboardTest<CR>
+
+Another helpful mapping for quickfix buffers is ::
+
+    map gF <Cmd>call source_locator#go_quickfix()
+
+It will open the file under cursor in the previous window.
 
 
 Configuration
