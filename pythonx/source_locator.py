@@ -30,6 +30,8 @@ patterns = [
     re.compile(r'File (?P<filename>[^: ]+), line(?:no)? (?P<lineno>\d+)'),
     # filename (lines 123-456)
     re.compile(r'(?P<filename>[^ ]+) [(]lines (?P<lineno>\d+)-\d+[)]'),
+    # filename line 123
+    re.compile(r'(?P<filename>[^ ]+) line (?P<lineno>\d+)'),
     # anything that looks like a unit test name (unittest style)
     re.compile(
         r'(?P<tag>(?:doc)?test[a-zA-Z0-9_]*)'
@@ -115,13 +117,22 @@ def locate_file(filename, verbose=False):
     file_suffixes = get_file_suffixes()
     safety_check = 100
     while filename:
-        for prefix in file_prefixes:
-            for suffix in file_suffixes:
-                new_filename = os.path.join(prefix, filename + suffix)
-                if verbose > 2:
-                    print('  checking %s' % new_filename)
-                if os.path.exists(new_filename):
-                    return new_filename
+        if filename.startswith('~'):
+            candidates = (
+                os.path.expanduser(filename + suffix)
+                for suffix in file_suffixes
+            )
+        else:
+            candidates = (
+                os.path.join(prefix, filename + suffix)
+                for prefix in file_prefixes
+                for suffix in file_suffixes
+            )
+        for new_filename in candidates:
+            if verbose > 2:
+                print('  checking %s' % new_filename)
+            if os.path.exists(new_filename):
+                return new_filename
         if '/' in filename:
             filename = filename.partition('/')[-1]
         elif '.' in filename:

@@ -1,7 +1,7 @@
 " File: source-locator.vim
 " Author: Marius Gedminas <marius@gedmin.as>
-" Version: 3.0
-" Last Modified: 2026-05-29
+" Version: 3.1
+" Last Modified: 2026-06-03
 
 " Old function names for backwards compatibility
 function! LocateTest(line)
