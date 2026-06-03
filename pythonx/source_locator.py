@@ -127,10 +127,12 @@ def locate_file(filename, verbose=False):
         elif '.' in filename:
             # RobotTest runner constructs test names by joining directory
             # and file names with dots, and also capitalizes them.
-            # Try replacing the first . with a /
+            # Try replacing all the . with /
             filename = '/'.join(filename.split('.'))
-            # and do the lowercasing hack to make it work for Robot tests, I'm crying
-            filename = filename.rpartition('/')[0].lower() + '/' + filename.rpartition('/')[-1]
+            # and do the lowercasing hack to make it work for Robot tests,
+            # I'm crying
+            head, slash, tail = filename.rpartition('/')
+            filename = head.lower() + slash + tail
         else:
             break
         if verbose:
@@ -182,6 +184,7 @@ def same_file(a, b):
         # exist for various reasons (e.g. it's not a real file, because the
         # current buffer is a NERDTree buffer or something like that), and
         # that causes os.path.samefile() to raise FileNotFoundError.
+        # BTW os.path.samefile(filename, '') also raises a FileNotFoundError
         return False
 
 
@@ -196,8 +199,11 @@ def locate_command(line, verbose=False):
         tag = match.get('tag')
         module_class = match.get('module_class')
         if verbose > 1:
-            print('MATCH: {}'.format(
-                ' '.join('{}={}'.format(k, v) for k, v in sorted(match.items()))))
+            print(
+                'MATCH: {}'.format(
+                    ' '.join(f'{k}={v}' for k, v in sorted(match.items()))
+                )
+            )
         if tag and module_class:
             # Optional integration with https://github.com/mgedmin/pytag.vim
             try:
@@ -219,9 +225,9 @@ def locate_command(line, verbose=False):
             if module:
                 filename = locate_module(module, verbose=verbose)
         if filename and lineno:
-            # os.path.samefile(filename, '') raises a FileNotFoundError
             if same_file(filename, vim.current.buffer.name):
-                # same file optimizatin: avoid re-reading, just jump to the right line
+                # same file optimizatin: avoid re-reading, just jump to the
+                # right line
                 return ':%d' % int(lineno)
             else:
                 return '%s +%s %s' % (e_command, lineno, quote(filename))
