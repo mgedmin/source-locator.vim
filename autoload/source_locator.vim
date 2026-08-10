@@ -119,7 +119,7 @@ endfunction
 " au FileType qf map <buffer> gF <Cmd>call source_locator#go_quickfix()<CR>
 function source_locator#go_quickfix()
   if has('pythonx')
-    pyx source_locator.locate(vim.current.line, command_prefix='wincmd p<bar>')
+    pyx source_locator.locate(vim.current.line, command_prefix='wincmd p | ')
   else
     let line = getline('.')
     wincmd p

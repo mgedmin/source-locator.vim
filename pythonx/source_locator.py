@@ -264,13 +264,13 @@ def locate(line, verbose=False, command_prefix=''):
         if cmd:
             # command_prefix is used in my ~/.vim/ftplugin/qf.vim for
             # map <buffer> gF :pyx source_locator.locate(vim.current.line,
-            #   \ command_prefix='wincmd p<bar>')<cr>
+            #   \ command_prefix='wincmd p|')<cr>
             cmd = command_prefix + cmd
             print(cmd)
             try:
                 vim.command(cmd)
-            except vim.error:
-                pass
+            except vim.error as e:
+                print(e)
         else:
             print("Don't know how to find %s" % line)
     except KeyboardInterrupt:
